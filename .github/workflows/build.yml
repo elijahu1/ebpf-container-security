@@ -1,0 +1,12 @@
+name: BPF Verifier Check
+on: [push]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build BPF
+        run: |
+          sudo apt-get install -y clang llvm
+          clang -O2 -target bpf -c detector/escape_detector.bpf.c -o detector.bpf.o
