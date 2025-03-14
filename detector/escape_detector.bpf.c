@@ -7,7 +7,10 @@ int detect_container_escape(struct trace_event_raw_sys_enter *ctx) {
     char comm[16];
     bpf_get_current_comm(&comm, sizeof(comm));
     
-    // Detection logic
+    // Debug: Print all execve calls
+    bpf_printk("EXECVE: %s", comm);
+    
+    // Detect container escape patterns
     if (bpf_strstr(comm, "docker") || 
         bpf_strstr(comm, "containerd") ||
         bpf_strstr(comm, "runc")) {
