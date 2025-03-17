@@ -1,4 +1,4 @@
-// detector.bpf.c
+// detector.bpf.c (fixed)
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_tracing.h>
@@ -6,9 +6,9 @@
 
 char _license[] SEC("license") = "GPL";
 
-// Helper for safe string comparison
-static inline __always_inline
-int bpf_strncmp(const char *s1, unsigned int n, const char *s2)
+// Renamed function
+static __always_inline
+int custom_strncmp(const char *s1, unsigned int n, const char *s2)
 {
     for (unsigned int i = 0; i < n; i++) {
         if (s1[i] != s2[i])
@@ -42,28 +42,23 @@ int detect_container_escape(struct trace_event_raw_sys_enter *ctx)
     bpf_probe_read_kernel_str(&pcomm, sizeof(pcomm), parent->comm);
 
     // Debug: Print all process spawns
-    bpf_printk("PROCESS: %s (PID: %d) -> PARENT: %s", comm, pid, pcomm);
+    bpf_printk("DEBUG: Process '%s' (PID: %d) spawned by '%s'", comm, pid, pcomm);
 
-       if (bpf_strncmp(comm, 7, "unshare") == 0) {
-        bpf_printk("ALERT: unshare executed by parent %s (PID: %d)", pcomm, pid);
-    }
-
-    // Container escape detection logic
-    if (bpf_strncmp(pcomm, 6, "conta") == 0 ||    // containerd
-        bpf_strncmp(pcomm, 3, "run") == 0) {      // runc/runtime
+    // Container escape detection logic (updated function name)
+    if (custom_strncmp(pcomm, 15, "containerd-shim") == 0 ||
+       custom_strncmp(pcomm, 9, "containerd") == 0 ||
+       custom_strncmp(pcomm, 3, "ctr") == 0 ||
+       custom_strncmp(pcomm, 3, "run") == 0) {
         
-        // Suspicious child processes
-        if (bpf_strncmp(comm, 7, "unshare") == 0 ||
-            bpf_strncmp(comm, 6, "nsenter") == 0 ||
-            bpf_strncmp(comm, 3, "sh") == 0 ||
-            bpf_strncmp(comm, 4, "bash") == 0) {
+        if (custom_strncmp(comm, 7, "unshare") == 0 ||
+            custom_strncmp(comm, 6, "nsenter") == 0 ||
+            custom_strncmp(comm, 3, "sh") == 0 ||
+            custom_strncmp(comm, 4, "bash") == 0) {
             
-            bpf_printk("ALERT: Container escape attempt detected!");
-            bpf_printk("SUSPICIOUS EXEC: %s (PID: %d) spawned by %s", 
-                      comm, pid, pcomm);
+            bpf_printk("ALERT: Container escape detected!");
+            bpf_printk("DETAILS: %s (PID: %d) spawned by %s", comm, pid, pcomm);
         }
     }
 
     return 0;
 }
-
