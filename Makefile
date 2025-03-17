@@ -36,7 +36,7 @@ test: build
 	@sleep 1
 	@sudo chmod +x examples/test-container-escape.sh
 	@sudo -E ./examples/test-container-escape.sh || true
-	@pkill -f $(LOADER)
+	@sudo pkill -f $(LOADER)
 
 clean:
 	rm -rf $(SRC_DIR)/*.o $(SRC_DIR)/*.skel.h $(BIN_DIR)
