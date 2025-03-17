@@ -1,7 +1,7 @@
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
 
-har _license[] SEC("license") = "GPL";
+char _license[] SEC("license") = "GPL";
 SEC("tracepoint/syscalls/sys_enter_execve")
 int detect_container_escape(struct pt_regs *ctx) {
     char comm[16];
