@@ -1,6 +1,6 @@
 build:
 	mkdir -p bin
-	clang -O2 -target bpf -c src/detector.bpf.c -o src/detector.bpf.o
+	clang -O2 -target bpf -I . -c src/detector.bpf.c -o src/detector.bpf.o
 	clang -o bin/loader src/loader.c -lbpf
 
 test:
