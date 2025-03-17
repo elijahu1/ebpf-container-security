@@ -36,6 +36,6 @@ fi
 
 # Stop the loader
 echo "Stopping loader..."
-sudo kill $LOADER_PID
+sudo pkill -f loader
 
 echo "Tests completed!"
