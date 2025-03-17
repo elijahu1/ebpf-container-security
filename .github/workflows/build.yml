@@ -1,0 +1,24 @@
+name: BPF Verification
+
+on: [push]
+
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup BPF Toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang llvm libbpf-dev linux-headers-generic
+
+    - name: Build Project
+      run: |
+        clang -O2 -target bpf -c src/detector.bpf.c -o src/detector.bpf.o
+        bpftool prog load src/detector.bpf.o /sys/fs/bpf/detector
+        
+    - name: Verify BPF
+      run: |
+        bpftool prog show | grep "detect_container_escape"
+        sudo rm /sys/fs/bpf/detector
