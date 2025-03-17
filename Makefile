@@ -13,9 +13,9 @@ BPF_OBJ := $(SRC_DIR)/detector.bpf.o
 SKEL_H := $(SRC_DIR)/detector.skel.h
 LOADER := $(BIN_DIR)/loader
 
-.PHONY: all build test clean
+.PHONY: all build test clean install-logrotate uninstall-logrotate
 
-all: build
+all: build install-logrotate
 
 build: $(LOADER)
 
@@ -34,13 +34,32 @@ $(BIN_DIR):
 test: build
 	@sudo $(LOADER) &
 	@sleep 1
-	@sudo chmod +x examples/test-container-escape.sh
 	@sudo -E ./examples/test-container-escape.sh || true
-	@sudo pkill -f $(LOADER)
+	@pkill -f $(LOADER)
 
 clean:
-	rm -rf $(SRC_DIR)/*.o $(SRC_DIR)/*.skel.h $(BIN_DIR)
-	rm -f vmlinux.h
+	@rm -rf $(SRC_DIR)/*.o $(SRC_DIR)/*.skel.h $(BIN_DIR)
+	@rm -f vmlinux.h
 
 vmlinux.h:
-	bpftool btf dump file /sys/kernel/btf/vmlinux format c > $@
+	@bpftool btf dump file /sys/kernel/btf/vmlinux format c > $@
+
+install-logrotate:
+	@echo "🔧 Installing logrotate configuration..."
+	@sudo bash -c 'tee /etc/logrotate.d/ebpf-container-security > /dev/null <<EOF
+/var/log/ebpf-container-security.log {
+    daily
+    rotate 7
+    missingok
+    compress
+    delaycompress
+    create 0644 root root
+}
+EOF'
+	@sudo logrotate --force /etc/logrotate.d/ebpf-container-security
+	@echo "✅ Log rotation configured"
+
+uninstall-logrotate:
+	@echo "🧹 Removing logrotate configuration..."
+	@sudo rm -f /etc/logrotate.d/ebpf-container-security
+	@echo "🗑️ Log rotation removed"
