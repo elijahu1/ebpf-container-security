@@ -4,33 +4,43 @@ ARCH := $(shell uname -m | sed 's/x86_64/x86/')
 BPF_CFLAGS := -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) -I. -I/usr/include/$(ARCH)-linux-gnu
 USER_CFLAGS := -Wall -O2 -lbpf -lelf -lz
 
+# Directories
+SRC_DIR := src
+BIN_DIR := bin
+
+# Targets
+BPF_OBJ := $(SRC_DIR)/detector.bpf.o
+SKEL_H := $(SRC_DIR)/detector.skel.h
+LOADER := $(BIN_DIR)/loader
+
 .PHONY: all build test clean
 
 all: build
 
-build: bin/loader
+build: $(LOADER)
 
-bin/loader: src/loader.c src/detector.skel.h
-	@mkdir -p bin
+$(LOADER): $(SRC_DIR)/loader.c $(SKEL_H) | $(BIN_DIR)
 	$(CC) $(USER_CFLAGS) -o $@ $<
 
-src/detector.skel.h: src/detector.bpf.o
+$(SKEL_H): $(BPF_OBJ)
 	bpftool gen skeleton $< > $@
 
-src/detector.bpf.o: src/detector.bpf.c vmlinux.h
+$(BPF_OBJ): $(SRC_DIR)/detector.bpf.c vmlinux.h
 	$(CC) $(BPF_CFLAGS) -c $< -o $@
 
+$(BIN_DIR):
+	@mkdir -p $@
+
 test: build
-	sudo ./bin/loader &
-	sleep 1
-	sudo chmod +x examples/test-container-escape.sh
-	sudo -E ./examples/test-container-escape.sh
-	pkill -f bin/loader
+	@sudo $(LOADER) &
+	@sleep 1
+	@sudo chmod +x examples/test-container-escape.sh
+	@sudo -E ./examples/test-container-escape.sh || true
+	@pkill -f $(LOADER)
 
 clean:
-	rm -rf src/*.o src/*.skel.h bin/
+	rm -rf $(SRC_DIR)/*.o $(SRC_DIR)/*.skel.h $(BIN_DIR)
 	rm -f vmlinux.h
 
-# Optional: Generate vmlinux.h if needed
 vmlinux.h:
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > $@
