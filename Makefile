@@ -47,7 +47,7 @@ vmlinux.h:
 install-logrotate:
 	@echo "🔧 Installing logrotate configuration..."
 	@sudo bash -c 'tee /etc/logrotate.d/ebpf-container-security > /dev/null <<EOF
-	/var/log/ebpf-container-security.log {
+/var/log/ebpf-container-security.log {
     daily
     rotate 7
     missingok
@@ -63,4 +63,3 @@ uninstall-logrotate:
 	@echo "🧹 Removing logrotate configuration..."
 	@sudo rm -f /etc/logrotate.d/ebpf-container-security
 	@echo "🗑️ Log rotation removed"
-
