@@ -54,7 +54,7 @@ int main() {
     struct rlimit rlim = {RLIM_INFINITY, RLIM_INFINITY};
     setrlimit(RLIMIT_MEMLOCK, &rlim);
 
-    obj = bpf_object__open("..src/detector.bpf.o");
+    obj = bpf_object__open("../src/detector.bpf.o");
     if (!obj) {
         fprintf(stderr, "Failed to open BPF object: %s\n", strerror(-errno));
         goto cleanup;
