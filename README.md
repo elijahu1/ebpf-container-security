@@ -1,5 +1,3 @@
-
-```markdown
 # eBPF Container Security Monitor (Early Development)
 
 🔍 *eBPF-based container escape detection prototype | Kernel 6.8+ | Early development stage | Not production-ready*
