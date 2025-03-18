@@ -18,9 +18,8 @@ This is a work-in-progress eBPF-based container escape detection system. Current
 
 ## Installation
 ```bash
-sudo apt update && sudo apt install -y clang llvm libbpf-dev linux-headers-$(uname -r) bpftool
-git clone https://github.com/yourusername/ebpf-container-security.git
-cd ebpf-container-security
+sudo apt update && sudo apt install -y clang llvm libbpf-dev linux-headers-$(uname -r) bpftoolgit clone https://github.com/yourusername/ebpf-container-security.git
+git clone https://github.com/elijahu1/ebpf-container-security.git
 make build
 ```
 
