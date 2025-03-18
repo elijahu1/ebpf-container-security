@@ -65,8 +65,3 @@ install-logrotate:
 EOF'
 	@sudo logrotate --force /etc/logrotate.d/ebpf-container-security
 	@echo "✅ Log rotation configured"
-
-uninstall-logrotate:
-	@echo "🧹 Removing logrotate configuration..."
-	@sudo rm -f /etc/logrotate.d/ebpf-container-security
-	@echo "🗑️ Log rotation removed"
