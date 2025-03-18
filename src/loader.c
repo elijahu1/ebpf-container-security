@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/resource.h>
 #include <time.h>
+#include <linux/types.h>
 
 static volatile bool running = true;
 static FILE *log_file = NULL;
