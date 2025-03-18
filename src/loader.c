@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <sys/resource.h>
 #include <time.h>
-#include <linux/types.h>  // Add this line for u32
+#include <stdint.h>  // Fixed include
 
 static volatile bool running = true;
 static FILE *log_file = NULL;
@@ -14,7 +14,7 @@ static FILE *log_file = NULL;
 struct event {
     char comm[16];
     char pcomm[16];
-    u32 pid;
+    uint32_t pid;  // Fixed type
 };
 
 void log_message(const char *message) {
