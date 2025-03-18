@@ -50,17 +50,16 @@ clean:
 vmlinux.h:
 	@bpftool btf dump file /sys/kernel/btf/vmlinux format c > $@
 
-### Log Rotation Rules ###
 install-logrotate:
 	@echo "🔧 Installing logrotate configuration..."
 	@sudo bash -c 'tee /etc/logrotate.d/ebpf-container-security > /dev/null <<EOF
 /var/log/ebpf-container-security.log {
-    daily
-    rotate 7
-    missingok
-    compress
-    delaycompress
-    create 0644 root root
+daily
+rotate 7
+missingok
+compress
+delaycompress
+create 0644 root root
 }
 EOF'
 	@sudo logrotate --force /etc/logrotate.d/ebpf-container-security
