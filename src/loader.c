@@ -6,7 +6,7 @@
 #include <errno.h>
 #include <sys/resource.h>
 #include <time.h>
-#include <linux/types.h>
+#include <linux/types.h>  // Add this line for u32
 
 static volatile bool running = true;
 static FILE *log_file = NULL;
