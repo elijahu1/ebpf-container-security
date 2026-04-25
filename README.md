@@ -1,7 +1,6 @@
 
 ---
 
-````markdown
 # eBPF Container Security Monitor
 
 A low-level **eBPF-based container security research tool** designed to observe syscall behavior and detect potential container escape patterns at the Linux kernel level.

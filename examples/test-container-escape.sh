@@ -1,4 +1,3 @@
-# examples/test-container-escape.sh
 #!/bin/bash
 
 set -e
