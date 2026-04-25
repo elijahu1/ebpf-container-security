@@ -1,79 +1,184 @@
-# eBPF Container Security Monitor (Early Development)
 
-🔍 *eBPF-based container escape detection prototype | Kernel 6.8+ | Early development stage | Not production-ready*
+---
 
-⚠️ **Experimental Project**  
-This is a work-in-progress eBPF-based container escape detection system. Currently in active development - detection logic and alerting are not fully functional yet.
+````markdown
+# eBPF Container Security Monitor
 
-## Current State
-- Basic eBPF program loading works
-- Syscall tracing infrastructure in place
-- Detection patterns under development
-- **No reliable alerts generated yet**
+A low-level **eBPF-based container security research tool** designed to observe syscall behavior and detect potential container escape patterns at the Linux kernel level.
 
-## Prerequisites
-- Ubuntu 22.04+ (AWS EC2 tested)
+⚠️ **Experimental Project — Not production ready**
+
+This project is intended for research, learning, and security experimentation only.
+
+---
+
+## Overview
+
+This tool uses eBPF to monitor kernel-level events and syscall activity inside containerized environments. It aims to detect early indicators of:
+
+- Container escape attempts
+- Privilege escalation behavior
+- Suspicious syscall patterns
+- Runtime anomalies at kernel level
+
+It is not a hardened detection system and should not be used in production environments.
+
+---
+
+## Current Status
+
+- ✅ eBPF program loads successfully
+- ✅ Syscall tracing pipeline functional
+- ⚠️ Detection logic is experimental
+- ⚠️ Alerting system is incomplete
+- ❌ Not production safe
+
+---
+
+## Requirements
+
+- Ubuntu 22.04+
 - Linux kernel 6.8+
-- clang 14+, libbpf-dev, bpftool
+- clang ≥ 14
+- libbpf-dev
+- bpftool
+- Docker (optional for testing)
+
+---
 
 ## Installation
+
+Clone the repository:
+
 ```bash
-sudo apt update && sudo apt install -y clang llvm libbpf-dev linux-headers-$(uname -r) bpftoolgit clone https://github.com/yourusername/ebpf-container-security.git
 git clone https://github.com/elijahu1/ebpf-container-security.git
+cd ebpf-container-security
+````
+
+Build the project:
+
+```bash
 make build
 ```
 
+---
+
 ## Usage
+
+### Start the eBPF monitor
+
 ```bash
-# Load detector
 sudo ./bin/loader
+```
 
-# In another terminal, monitor logs
+---
+
+### View kernel trace output
+
+```bash
 sudo cat /sys/kernel/debug/tracing/trace_pipe
+```
 
-# Trigger test (no alerts expected yet)
+---
+
+### Trigger test workload
+
+```bash
 docker run --rm ubuntu unshare --user
 ```
 
-## Docker Development Environment
-Rebuild the exact testing environment:
-```bash
-# Build image (from project root)
-docker build -t ebpf-monitor-dev .
+---
 
-# Run with host kernel headers access
+## Docker Development Environment
+
+Build the dev image:
+
+```bash
+docker build -t ebpf-monitor-dev .
+```
+
+Run container with kernel access:
+
+```bash
 docker run -it --rm \
   -v /lib/modules:/lib/modules:ro \
   -v /usr/src:/usr/src:ro \
   -v $(pwd):/app \
   ebpf-monitor-dev
-
-# Inside container:
-make build && sudo ./bin/loader
 ```
 
-**Key Limitations**:
-- Requires host kernel 6.8+
-- Bind mounts needed for kernel headers
-- BPF programs interact directly with host kernel
+Inside container:
 
-## Troubleshooting
-If you get no output:
-- Verify kernel version matches headers: `uname -r`
-- Check BPF program load: `sudo bpftool prog list`
-- Ensure tracing is enabled: `sudo sh -c 'echo 1 > /sys/kernel/debug/tracing/tracing_on'`
-
-## Roadmap
-- [ ] Basic container escape detection
-- [ ] Alert filtering
-- [ ] Integration with container runtimes
-- [ ] Production deployment guide
-
-## License
-This project is licensed under [GNU GPLv3](LICENSE.md)
+```bash
+make build
+sudo ./bin/loader
+```
 
 ---
 
-**Contributions welcome!** See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+## Limitations
+
+* Requires Linux kernel ≥ 6.8
+* Depends on host kernel headers
+* Not stable for production workloads
+* Detection logic is still under development
+* Direct kernel interaction may cause system instability
+
+---
+
+## Roadmap
+
+* Container escape detection heuristics
+* Runtime anomaly scoring engine
+* Alerting system (logs + webhook integration)
+* Container runtime integrations (Docker / containerd)
+* Production hardening and safety layer
+
+---
+
+## Troubleshooting
+
+Check kernel version:
+
+```bash
+uname -r
 ```
+
+List loaded BPF programs:
+
+```bash
+sudo bpftool prog list
+```
+
+Enable tracing if empty output:
+
+```bash
+echo 1 | sudo tee /sys/kernel/debug/tracing/tracing_on
+```
+
+---
+
+## License
+
+This project is licensed under the **GNU General Public License v3.0**.
+
+See the `LICENSE` file for full details.
+
+---
+
+## Contributing
+
+Contributions are welcome. Please see `CONTRIBUTING.md` for guidelines.
+
+---
+
+## Warning
+
+This project operates at the Linux kernel level.
+
+Improper usage may cause system instability or kernel crashes.
+Use only in controlled environments (VMs recommended).
+
+```
+
 
